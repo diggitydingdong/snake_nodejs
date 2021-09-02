@@ -1,0 +1,48 @@
+<canvas id="canvas" width="1000" height="500"></canvas>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+  var g = document.getElementById("canvas").getContext("2d");
+  g.font = "30px Arial";
+
+  var tileSize = 20;
+  var width = canvas.width / tileSize;
+  var height = canvas.height / tileSize;
+
+  var colours = ["Aqua", "Chartreuse", "Crimson", "Pink", "LightGreen"];
+
+  var socket = io();
+
+
+
+//  data: id, body, direction
+  socket.on('draw', function(pack){
+    g.fillStyle="black";
+    g.fillRect(0, 0, canvas.width, canvas.height);
+
+    for(var i in pack.snakes)
+    {
+      snake = pack.snakes[i];
+
+      g.fillStyle=colours[Math.floor(snake.id) % colours.length];
+
+      for(var j in snake.body)
+      {
+        part = snake.body[j];
+        g.fillRect(part.x*tileSize, part.y*tileSize, tileSize, tileSize);
+      }
+    }
+
+    g.fillStyle="red";
+    g.fillRect(pack.fruit.x*tileSize, pack.fruit.y*tileSize, tileSize, tileSize);
+
+  });
+
+  document.onkeydown = function(event){
+    if(event.keyCode == 38) socket.emit('directionChange', {direction:1}); // up
+    else if(event.keyCode == 39) socket.emit('directionChange', {direction:2}); // right
+    else if(event.keyCode == 40) socket.emit('directionChange', {direction:3}); // down
+    else if(event.keyCode == 37) socket.emit('directionChange', {direction:4}); // left
+  }
+
+</script>
